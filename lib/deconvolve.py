@@ -302,25 +302,26 @@ def set_lowr_thresh(data_shape, **kwargs):
     return kwargs
 
 
-def set_primal_dual(data_shape, **kwargs):
+def set_primal_dual(data, **kwargs):
     """Set primal and dual variables
 
     This method sets the initial values of the primal and dual variables
 
     Parameters
     ----------
-    data_shape : tuple
-        Shape of the input data array
+    data : np.ndarray
+        Input noisy data (3D array)
 
     Returns
     -------
     dict Updated keyword arguments
 
     """
+    data_shape = data.shape
 
     # Set the initial values of the primal variable if not provided
     if isinstance(kwargs['primal'], type(None)):
-        kwargs['primal'] = np.ones(data_shape)
+        kwargs['primal'] = np.copy(data)
 
     # Set the initial values of the dual variable
     if kwargs['mode'] == 'all':
@@ -538,7 +539,7 @@ def run(data, psf, **kwargs):
         kwargs = set_lowr_thresh(data.shape, **kwargs)
 
     # SET THE INITIAL PRIMAL AND DUAL VARIABLES
-    kwargs = set_primal_dual(data.shape, **kwargs)
+    kwargs = set_primal_dual(data, **kwargs)
 
     # SET THE PROXIMITY OPERATORS AND THE COST FUNCTION
     kwargs = set_prox_op_and_cost(data, **kwargs)
