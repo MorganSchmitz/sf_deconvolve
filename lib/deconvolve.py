@@ -540,7 +540,7 @@ def run(data, psf, **kwargs):
         kwargs = set_lowr_thresh(data.shape, **kwargs)
 
     # SET THE INITIAL PRIMAL AND DUAL VARIABLES
-    kwargs = set_primal_dual(data.shape, **kwargs)
+    kwargs = set_primal_dual(data, **kwargs)
 
     # SET THE PROXIMITY OPERATORS AND THE COST FUNCTION
     kwargs = set_prox_op_and_cost(data, **kwargs)
