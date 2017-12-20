@@ -163,7 +163,7 @@ class GradUnknownPSF(GradPSF):
     """
 
     def __init__(self, data, psf, prox, psf_type='fixed', beta_reg=1,
-                 lambda_reg=1):
+                 lambda_reg=1, decrease_factor=1):
 
         if not hasattr(prox, 'op'):
             raise ValueError('prox must have "op()" method')
@@ -173,6 +173,7 @@ class GradUnknownPSF(GradPSF):
         self._beta_reg = beta_reg
         self._lambda_reg = lambda_reg
         self._psf0 = np.copy(psf)
+        self._decrease_factor = decrease_factor
         super(GradUnknownPSF, self).__init__(data, psf, psf_type)
 
     def _update_lambda(self):
@@ -182,7 +183,7 @@ class GradUnknownPSF(GradPSF):
 
         """
 
-        self._lambda_reg = self._lambda_reg
+        self._lambda_reg = self._lambda_reg/self._decrease_factor
 
     def _update_psf(self, x):
         """Update the current estimate of the PSF

@@ -83,7 +83,8 @@ def set_grad_op(data, psf, **kwargs):
         kwargs['grad_op'] = GradUnknownPSF(data, psf, Positive(),
                                            psf_type=kwargs['psf_type'],
                                            beta_reg=kwargs['beta_psf'],
-                                           lambda_reg=kwargs['lambda_psf'])
+                                           lambda_reg=kwargs['lambda_psf'],
+                                           decrease_factor=kwargs['decfac_psf'])
 
     elif kwargs['grad_type'] == 'shape':
         kwargs['grad_op'] = GradShape(data, psf, psf_type=kwargs['psf_type'],
@@ -539,7 +540,7 @@ def run(data, psf, **kwargs):
         kwargs = set_lowr_thresh(data.shape, **kwargs)
 
     # SET THE INITIAL PRIMAL AND DUAL VARIABLES
-    kwargs = set_primal_dual(data, **kwargs)
+    kwargs = set_primal_dual(data.shape, **kwargs)
 
     # SET THE PROXIMITY OPERATORS AND THE COST FUNCTION
     kwargs = set_prox_op_and_cost(data, **kwargs)

@@ -172,6 +172,9 @@ def get_opts(args=None):
                         help='Regularisation control parameter for PSF '
                         'estimation')
 
+    psfest.add_argument('--decfac_psf', type=float, default=1.0,
+                        help='Decreasing factor for PSF estimation trade-off parameter')
+
     psfest.add_argument('--beta_psf', type=float, default=1.0,
                         help='Gradient step for PSF estimation')
 
