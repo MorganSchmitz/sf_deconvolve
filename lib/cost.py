@@ -139,7 +139,7 @@ class sf_deconvolveCost(object):
     def psf_comp(self):
         """Calculate PSF estimation component of the cost
 
-        This method returns the l2 norm error of the difference between the
+        This method returns the squared l2 norm error of the difference between the
         initial PSF and the estimated PSF
 
         Returns
@@ -148,7 +148,7 @@ class sf_deconvolveCost(object):
 
         """
 
-        l2_norm = np.linalg.norm(self.grad._psf - self.grad._psf0)
+        l2_norm = np.linalg.norm(self.grad._psf - self.grad._psf0)**2
 
         if self.verbose:
             print(' - L2 NORM (PSF):', l2_norm)
