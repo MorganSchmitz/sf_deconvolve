@@ -153,6 +153,9 @@ def run_script(log):
         print(' - PSF Estimation Gradient Step Size (Beta):', opts.beta_psf)
         log.info(' - PSF Estimation Lambda: ' + str(opts.lambda_psf))
         log.info(' - PSF Estimation Beta: ' + str(opts.beta_psf))
+        if opts.decfac_psf != 1:
+            print(' - PSF Estimation Control Parameter decrease factor:', opts.decfac_psf)
+            log.info(' - PSF Lambda decreasing factor: ' + str(opts.decfac_psf))
 
     # Log PSF estimation options
     if opts.grad_type == 'shape':
