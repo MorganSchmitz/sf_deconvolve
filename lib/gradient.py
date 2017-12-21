@@ -163,7 +163,7 @@ class GradUnknownPSF(GradPSF):
     """
 
     def __init__(self, data, psf, prox, psf_type='fixed', beta_reg=1, beta_sig=1,
-                 lambda_reg=1, decrease_factor=1):
+                 lambda_reg=1, decrease_factor=1, line_search_failure=False):
 
         if not hasattr(prox, 'op'):
             raise ValueError('prox must have "op()" method')
@@ -175,6 +175,7 @@ class GradUnknownPSF(GradPSF):
         self._lambda_reg = lambda_reg
         self._psf0 = np.copy(psf)
         self._decrease_factor = decrease_factor
+        self._line_search_failure = line_search_failure
         super(GradUnknownPSF, self).__init__(data, psf, psf_type)
 
     def _update_lambda(self):
@@ -190,11 +191,11 @@ class GradUnknownPSF(GradPSF):
         """PSF cost function - also computed by the actual sf_deconvolveCost so this is redundant but ok
 
         """
-        data_fid = 1./2*np.linalg.norm(self._y - self.H_op(x))**2 
+        data_fid = 1./2*np.linalg.norm(self._y - convolve_stack(x, prop_psf, rot_kernel=False))**2 
         model_stray = self._lambda_reg * np.linalg.norm(prop_psf - self._psf0)**2
         return data_fid + model_stray
 
-    def _line_search(self, x):
+    def _line_search(self, x, min_step=1e-8):
         """Update step size beta_reg with rough line search
 
         This method implements the update method for beta_reg
@@ -211,6 +212,10 @@ class GradUnknownPSF(GradPSF):
         # as long as cost grows, reduce step size
         while cost_prop > cost_init: 
             self._beta_reg /= self._beta_sig
+            if self._beta_reg < min_step:
+                psf_prop = self._psf
+                self._line_search_failure = True
+                break
             psf_prop = self._prox.op(self._psf - self._beta_reg * psf_grad)
             cost_prop = self.psf_cost(psf_prop, x)
         self._psf = psf_prop
@@ -235,7 +240,7 @@ class GradUnknownPSF(GradPSF):
 
         self._psf = self._prox.op(self._psf - self._beta_reg * psf_grad)
 
-    def get_grad(self, x):
+    def get_grad(self, x, min_step=1e-8):
         """Get the gradient at the given iteration
 
         This method calculates the gradient value from the input data
@@ -248,7 +253,7 @@ class GradUnknownPSF(GradPSF):
         """
         self._update_lambda()
 
-        if self._beta_sig > 1:
+        if self._beta_sig > 1 and not self._line_search_failure:
             self._line_search(x)
         else:
             self._update_psf(x)
