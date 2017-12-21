@@ -149,10 +149,16 @@ def run_script(log):
 
     # Log PSF estimation options
     if opts.grad_type == 'psf_unknown':
+        if opts.beta_sig != 1:
+            print(' - (Initial) PSF Estimation Gradient Step Size (Beta):', opts.beta_psf)
+            log.info(' - (Initial) PSF Estimation Beta: ' + str(opts.beta_psf))
+            print(' - PSF Estimation Line Search parameter:', opts.beta_sig)
+            log.info(' - PSF Line Search parameter: ' + str(opts.beta_sig))
+        else:
+            print(' - (Constant) PSF Estimation Gradient Step Size (Beta):', opts.beta_psf)
+            log.info(' - (Constant) PSF Estimation Beta: ' + str(opts.beta_psf))
         print(' - PSF Estimation Control Parameter (Lambda):', opts.lambda_psf)
-        print(' - PSF Estimation Gradient Step Size (Beta):', opts.beta_psf)
         log.info(' - PSF Estimation Lambda: ' + str(opts.lambda_psf))
-        log.info(' - PSF Estimation Beta: ' + str(opts.beta_psf))
         if opts.decfac_psf != 1:
             print(' - PSF Estimation Control Parameter decrease factor:', opts.decfac_psf)
             log.info(' - PSF Lambda decreasing factor: ' + str(opts.decfac_psf))

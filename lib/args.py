@@ -176,7 +176,10 @@ def get_opts(args=None):
                         help='Decreasing factor for PSF estimation trade-off parameter')
 
     psfest.add_argument('--beta_psf', type=float, default=1.0,
-                        help='Gradient step for PSF estimation')
+                        help='(Initial) Gradient step for PSF estimation')
+
+    psfest.add_argument('--beta_sig', type=float, default=1.0,
+                        help='Line search parameter for PSF estimation')
 
     shape.add_argument('--lambda_shape', type=float, default=1.0,
                        help='Regularisation control parameter for shape '

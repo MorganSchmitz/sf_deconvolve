@@ -162,7 +162,7 @@ class GradUnknownPSF(GradPSF):
 
     """
 
-    def __init__(self, data, psf, prox, psf_type='fixed', beta_reg=1,
+    def __init__(self, data, psf, prox, psf_type='fixed', beta_reg=1, beta_sig=1,
                  lambda_reg=1, decrease_factor=1):
 
         if not hasattr(prox, 'op'):
@@ -171,6 +171,7 @@ class GradUnknownPSF(GradPSF):
         self.grad_type = 'psf_unknown'
         self._prox = prox
         self._beta_reg = beta_reg
+        self._beta_sig = beta_sig
         self._lambda_reg = lambda_reg
         self._psf0 = np.copy(psf)
         self._decrease_factor = decrease_factor
@@ -185,6 +186,36 @@ class GradUnknownPSF(GradPSF):
 
         self._lambda_reg = self._lambda_reg/self._decrease_factor
 
+    def psf_cost(self, prop_psf, x):
+        """PSF cost function - also computed by the actual sf_deconvolveCost so this is redundant but ok
+
+        """
+        data_fid = 1./2*np.linalg.norm(self._y - self.H_op(x))**2 
+        model_stray = self._lambda_reg * np.linalg.norm(prop_psf - self._psf0)**2
+        return data_fid + model_stray
+
+    def _line_search(self, x):
+        """Update step size beta_reg with rough line search
+
+        This method implements the update method for beta_reg
+
+        """
+        cost_init = self.psf_cost(self._psf, x)
+        psf_grad = (convolve_stack(self.H_op(x) - self._y, x,
+                    rot_kernel=True) + self._lambda_reg *
+                    (self._psf - self._psf0))
+
+        psf_prop = self._prox.op(self._psf - self._beta_reg * psf_grad)
+        cost_prop = self.psf_cost(psf_prop, x)
+
+        # as long as cost grows, reduce step size
+        while cost_prop > cost_init: 
+            self._beta_reg /= self._beta_sig
+            psf_prop = self._prox.op(self._psf - self._beta_reg * psf_grad)
+            cost_prop = self.psf_cost(psf_prop, x)
+        self._psf = psf_prop
+        
+
     def _update_psf(self, x):
         """Update the current estimate of the PSF
 
@@ -197,8 +228,6 @@ class GradUnknownPSF(GradPSF):
             Input data array, an array of recovered 2D images
 
         """
-
-        self._update_lambda()
 
         psf_grad = (convolve_stack(self.H_op(x) - self._y, x,
                     rot_kernel=True) + self._lambda_reg *
@@ -217,8 +246,12 @@ class GradUnknownPSF(GradPSF):
             Input data array, an array of recovered 2D images
 
         """
+        self._update_lambda()
 
-        self._update_psf(x)
+        if self._beta_sig > 1:
+            self._line_search(x)
+        else:
+            self._update_psf(x)
         self.grad = self._calc_grad(x)
 
 

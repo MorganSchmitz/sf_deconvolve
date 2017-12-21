@@ -83,6 +83,7 @@ def set_grad_op(data, psf, **kwargs):
         kwargs['grad_op'] = GradUnknownPSF(data, psf, Positive(),
                                            psf_type=kwargs['psf_type'],
                                            beta_reg=kwargs['beta_psf'],
+                                           beta_sig=kwargs['beta_sig'],
                                            lambda_reg=kwargs['lambda_psf'],
                                            decrease_factor=kwargs['decfac_psf'])
 
