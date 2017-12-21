@@ -24,7 +24,8 @@ from os.path import splitext
 from lib import __version__
 from lib.args import get_opts
 from lib.file_io import *
-from lib.deconvolve import run
+from lib import deconvolve
+from lib import update_psf
 from lib.tests import test_deconvolution, test_psf_estimation
 from sf_tools.interface.errors import catch_error, warn
 from sf_tools.interface.log import set_up_log, close_log
@@ -172,8 +173,11 @@ def run_script(log):
     print(h_line)
 
     ###########################################################################
-    # Perform deconvolution.
-    results = run(data_noisy, psf_data, **vars(opts))
+    if opts.opt_type == 'psf_only':
+        results = update_psf.run(data_noisy, psf_data, **vars(opts))
+    else:
+        # Perform deconvolution.
+        results = deconvolve.run(data_noisy, psf_data, **vars(opts))
     ###########################################################################
 
     if not isinstance(opts.clean_data, type(None)):

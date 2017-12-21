@@ -125,7 +125,7 @@ def get_opts(args=None):
                               'mode.')
 
     optimisation.add_argument('--opt_type', default='condat',
-                              choices=('condat', 'fwbw', 'gfwbw'),
+                              choices=('condat', 'fwbw', 'gfwbw', 'psf_only'),
                               help='Option to specify the optimisation method '
                               'to be implemented.')
 
