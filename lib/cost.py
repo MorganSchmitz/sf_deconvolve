@@ -176,15 +176,16 @@ class sf_deconvolveCost(object):
         if self.positivity and self.verbose:
             print(' - MIN(X):', np.min(x))
 
-        cost = 0.5 * self.grad_comp(x) ** 2
+        cost_list = [0.5 * self.grad_comp(x) ** 2]
 
         if self.mode in ('sparse', 'all'):
-            cost += self.sparse_comp(x)
+            cost_list += [self.sparse_comp(x)]
 
         elif self.mode in ('lowr', 'all'):
-            cost += self.lowr_comp(x)
+            cost_list += [self.lowr_comp(x)]
 
         if self.grad.grad_type == 'psf_unknown':
-            cost += self.psf_comp()
+            cost_list += [self.psf_comp()]
 
-        return cost
+        cost_list += [sum(cost_list)]
+        return cost_list

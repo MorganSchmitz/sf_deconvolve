@@ -17,7 +17,8 @@ from builtins import range, zip
 from scipy.linalg import norm
 from sf_tools.signal.optimisation import *
 from sf_tools.math.stats import sigma_mad
-from sf_tools.signal.cost import costObj
+#from sf_tools.signal.cost import costObj
+from mas_cost import costObj
 from sf_tools.signal.linear import *
 from sf_tools.signal.proximity import *
 from sf_tools.signal.reweight import cwbReweight
