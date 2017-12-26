@@ -154,7 +154,6 @@ class costObj(object):
 
         """
         self._cost_list = np.array(self._cost_list)
-        print('WELCOME HOME MORGAN:\t{}'.format(self._cost_list.shape))
         if import_fail:
             pass
 

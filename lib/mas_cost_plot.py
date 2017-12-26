@@ -30,7 +30,6 @@ def plotCost(cost_list, output=None):
         Output file name
 
     """
-    print('WUBBA LUBBA DUB DUB MORGAN:\t{}'.format(cost_list.shape))
 
     if isinstance(output, type(None)):
         file_name = 'cost_function'
