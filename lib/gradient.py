@@ -193,7 +193,7 @@ class GradUnknownPSF(GradPSF):
         """
         data_fid = 1./2*np.linalg.norm(self._y - convolve_stack(x, prop_psf, rot_kernel=False))**2 
         model_stray = self._lambda_reg * np.linalg.norm(prop_psf - self._psf0)**2
-        return data_fid + model_stray
+        return data_fid, model_stray
 
     def _line_search(self, x, min_step=1e-8):
         """Update step size beta_reg with rough line search
@@ -201,13 +201,13 @@ class GradUnknownPSF(GradPSF):
         This method implements the update method for beta_reg
 
         """
-        cost_init = self.psf_cost(self._psf, x)
+        cost_init = np.sum(self.psf_cost(self._psf, x))
         psf_grad = (convolve_stack(self.H_op(x) - self._y, x,
                     rot_kernel=True) + self._lambda_reg *
                     (self._psf - self._psf0))
 
         psf_prop = self._prox.op(self._psf - self._beta_reg * psf_grad)
-        cost_prop = self.psf_cost(psf_prop, x)
+        cost_prop = np.sum(self.psf_cost(psf_prop, x))
 
         # as long as cost grows, reduce step size
         while cost_prop > cost_init: 
@@ -217,7 +217,7 @@ class GradUnknownPSF(GradPSF):
                 self._line_search_failure = True
                 break
             psf_prop = self._prox.op(self._psf - self._beta_reg * psf_grad)
-            cost_prop = self.psf_cost(psf_prop, x)
+            cost_prop = np.sum(self.psf_cost(psf_prop, x))
         self._psf = psf_prop
         
 

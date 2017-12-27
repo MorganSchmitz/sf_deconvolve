@@ -17,7 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plotCost(cost_list, output=None):
+def plotCost(cost_list, output=None, psf_only=False):
     """Plot cost function
 
     Plot the final cost function
@@ -38,7 +38,11 @@ def plotCost(cost_list, output=None):
         file_name = output + '_cost_function'
 
     nb_cost = cost_list.shape[1]
-    if nb_cost == 4:
+    if psf_only:
+        file_name += '_psf'
+        labels = ['Data Fid', 'PSF update', 'Full']
+        colors = ['cornflowerblue', 'lightsage', 'b']
+    elif nb_cost == 4:
         labels = ['Data Fid', 'Sparsity', 'PSF update', 'Full']
         colors = ['cornflowerblue', 'k', 'lightsage', 'b']
     elif nb_cost == 3:
