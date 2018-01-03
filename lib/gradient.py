@@ -162,7 +162,7 @@ class GradUnknownPSF(GradPSF):
 
     """
 
-    def __init__(self, data, psf, prox, psf_type='fixed', beta_reg=1, beta_sig=1,
+    def __init__(self, data, psf, prox, psf_type='fixed', beta_reg=1, beta_sig=.01, beta_decfac=.1, 
                  lambda_reg=1, decrease_factor=1, line_search_failure=False):
 
         if not hasattr(prox, 'op'):
@@ -172,6 +172,7 @@ class GradUnknownPSF(GradPSF):
         self._prox = prox
         self._beta_reg = beta_reg
         self._beta_sig = beta_sig
+        self._beta_decfac = beta_decfac
         self._lambda_reg = lambda_reg
         self._psf0 = np.copy(psf)
         self._decrease_factor = decrease_factor
@@ -195,29 +196,34 @@ class GradUnknownPSF(GradPSF):
         model_stray = self._lambda_reg * np.linalg.norm(prop_psf - self._psf0)**2
         return data_fid, model_stray
 
-    def _line_search(self, x, min_step=1e-8):
+    def _line_search(self, x, n_iter_max=20):	
         """Update step size beta_reg with rough line search
 
         This method implements the update method for beta_reg
 
         """
+        done = False
+        count = 0
         cost_init = np.sum(self.psf_cost(self._psf, x))
         psf_grad = (convolve_stack(self.H_op(x) - self._y, x,
                     rot_kernel=True) + self._lambda_reg *
                     (self._psf - self._psf0))
-
-        psf_prop = self._prox.op(self._psf - self._beta_reg * psf_grad)
-        cost_prop = np.sum(self.psf_cost(psf_prop, x))
-
-        # as long as cost grows, reduce step size
-        while cost_prop > cost_init: 
-            self._beta_reg /= self._beta_sig
-            if self._beta_reg < min_step:
-                psf_prop = self._psf
-                self._line_search_failure = True
-                break
+        maxline = - self._beta_sig * self._beta_reg * np.inner(psf_grad.flatten(),psf_grad.flatten())
+        while not done:
+            count +=1
+            # descend gradient with current beta
             psf_prop = self._prox.op(self._psf - self._beta_reg * psf_grad)
+            # check error
             cost_prop = np.sum(self.psf_cost(psf_prop, x))
+            if cost_prop < cost_init + maxline:
+                done = True
+            elif count >= n_iter_max:
+                psf_prop = self._psf
+                done = True
+                self._line_search_failure = True
+            else: # try new beta
+                self._beta_reg *= self._beta_decfac
+                maxline *= self._beta_decfac
         self._psf = psf_prop
         
 
@@ -240,7 +246,7 @@ class GradUnknownPSF(GradPSF):
 
         self._psf = self._prox.op(self._psf - self._beta_reg * psf_grad)
 
-    def get_grad(self, x, min_step=1e-8):
+    def get_grad(self, x):
         """Get the gradient at the given iteration
 
         This method calculates the gradient value from the input data
@@ -252,11 +258,10 @@ class GradUnknownPSF(GradPSF):
 
         """
         self._update_lambda()
-
-        if self._beta_sig > 1 and not self._line_search_failure:
-            self._line_search(x)
-        else:
+        if self._beta_decfac == 1:
             self._update_psf(x)
+        elif not self._line_search_failure:
+            self._line_search(x)
         self.grad = self._calc_grad(x)
 
 
