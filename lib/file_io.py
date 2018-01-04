@@ -114,7 +114,7 @@ def read_file(file_name):
     return data
 
 
-def read_input_files(data_file_name, psf_file_name, current_file_name=None):
+def read_input_files(data_file_name, psf_file_name, psf_model_file=None, current_file_name=None):
     """Read input files
 
     This method reads image array data from the specified input files.
@@ -125,6 +125,8 @@ def read_input_files(data_file_name, psf_file_name, current_file_name=None):
         Name of file with path for the noisy image data
     psf_file_name : str
         Name of file with path for the PSF image data
+    psf_model_file : str or None
+        Name of file with path for the PSF model data
     current_file_name : str, optional
         Name of file with path for the current results
 
@@ -151,7 +153,17 @@ def read_input_files(data_file_name, psf_file_name, current_file_name=None):
     if psf_data.ndim == 3 and input_data.shape[0] < psf_data.shape[0]:
         raise ValueError('The number of input images must be greater than or '
                          'or equal to the number of PSF images.')
+    
+    if not isinstance(psf_model_file, type(None)):
+        psf_model = read_file(psf_model_file)
 
+        if psf_model.shape != psf_data.shape:
+            raise ValueError('The number of model PSF images '
+                             'must match the number of current PSF images.')
+    
+    else:
+        psf_model = None
+    
     if not isinstance(current_file_name, type(None)):
         current_data = read_file(current_file_name)
 
@@ -162,7 +174,7 @@ def read_input_files(data_file_name, psf_file_name, current_file_name=None):
     else:
         current_data = None
 
-    return input_data, psf_data, current_data
+    return input_data, psf_data, psf_model, current_data
 
 
 def write_output_files(output_file_name, primal_res, dual_res=None,

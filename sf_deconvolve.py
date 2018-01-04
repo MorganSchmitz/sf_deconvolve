@@ -93,8 +93,8 @@ def run_script(log):
 
     ###########################################################################
     # Read the input data files
-    data_noisy, psf_data, primal = read_input_files(opts.input, opts.psf_file,
-                                                    opts.current_res)
+    data_noisy, psf_data, psf_model, primal = read_input_files(opts.input, opts.psf_file,
+                                                    opts.psf_model_file, opts.current_res)
     check_psf(psf_data, log)
     opts.primal = primal
     ###########################################################################
@@ -174,7 +174,7 @@ def run_script(log):
 
     ###########################################################################
     if opts.opt_type == 'psf_only':
-        results = update_psf.run(data_noisy, psf_data, **vars(opts))
+        results = update_psf.run(data_noisy, psf_data, psf_model, **vars(opts))
     else:
         # Perform deconvolution.
         results = deconvolve.run(data_noisy, psf_data, **vars(opts))

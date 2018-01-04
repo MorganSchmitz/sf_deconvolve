@@ -113,6 +113,9 @@ def get_opts(args=None):
 
     init.add_argument('-k', '--current_res',
                       help='Current deconvolution results file name.')
+                      
+    init.add_argument('--psf_model_file',
+                      help='PSF model (H_0) file name.')
 
     hidden.add_argument('--primal', help=ap.SUPPRESS)
 

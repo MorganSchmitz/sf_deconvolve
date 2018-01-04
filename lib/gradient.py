@@ -162,7 +162,7 @@ class GradUnknownPSF(GradPSF):
 
     """
 
-    def __init__(self, data, psf, prox, psf_type='fixed', beta_reg=1, beta_sig=.01, beta_decfac=.1, 
+    def __init__(self, data, psf, prox, psf_model=None, psf_type='fixed', beta_reg=1, beta_sig=.01, beta_decfac=.1, 
                  lambda_reg=1, decrease_factor=1, line_search_failure=False):
 
         if not hasattr(prox, 'op'):
@@ -174,7 +174,10 @@ class GradUnknownPSF(GradPSF):
         self._beta_sig = beta_sig
         self._beta_decfac = beta_decfac
         self._lambda_reg = lambda_reg
-        self._psf0 = np.copy(psf)
+        if psf_model is None:
+            self._psf0 = np.copy(psf)
+        else:
+            self._psf0 = psf_model
         self._decrease_factor = decrease_factor
         self._line_search_failure = line_search_failure
         super(GradUnknownPSF, self).__init__(data, psf, psf_type)

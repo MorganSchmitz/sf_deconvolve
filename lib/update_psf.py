@@ -20,7 +20,7 @@ from mas_cost_plot import plotCost
 
 
 
-def run(data, psf, **kwargs):
+def run(data, psf, psf_model, **kwargs):
     """Run deconvolution
 
     This method initialises the operator classes and runs the optimisation
@@ -39,6 +39,7 @@ def run(data, psf, **kwargs):
 
     """
     kwargs['grad_op'] = GradUnknownPSF(data, psf, Positive(),
+                                           psf_model=psf_model,
                                            psf_type=kwargs['psf_type'],
                                            beta_reg=kwargs['beta_psf'],
                                            beta_sig=kwargs['beta_sig'],
