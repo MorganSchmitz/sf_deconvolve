@@ -20,7 +20,7 @@ from mas_cost_plot import plotCost
 
 
 
-def run(data, psf, psf_model, **kwargs):
+def run(data, galprimal, psf, psf_model, **kwargs):
     """Run deconvolution
 
     This method initialises the operator classes and runs the optimisation
@@ -45,22 +45,22 @@ def run(data, psf, psf_model, **kwargs):
                                            beta_sig=kwargs['beta_sig'],
                                            lambda_reg=kwargs['lambda_psf'],
                                            decrease_factor=kwargs['decfac_psf'])
-    costs = [kwargs['grad_op'].psf_cost(psf, data)]
+    costs = [kwargs['grad_op'].psf_cost(psf, galprimal)]
     cost = np.sum(costs)
     costs = [costs[0] + (cost,)]
     n_iter = 0
     converged = False
     while not converged:
         print('\n - ITERATION: {}'.format(n_iter))
-        kwargs['grad_op'].get_grad(data)
+        kwargs['grad_op'].get_grad(galprimal)
         print(' - Current step size: {}'.format(kwargs['grad_op']._beta_reg))
         upd_psf = kwargs['grad_op']._psf
-        this_cost = kwargs['grad_op'].psf_cost(upd_psf, data)
+        this_cost = kwargs['grad_op'].psf_cost(upd_psf, galprimal)
         this_cost += (np.sum(this_cost),)
         costs += [this_cost]
         this_cost = this_cost[-1]
         n_iter += 1
-        if np.abs(this_cost - cost) < kwargs['convergence']:
+        if np.abs(this_cost - cost)/np.abs(cost) < kwargs['convergence']:
             converged=True
             print('PSF estimation converged! (Cost difference below tolerance)')
         elif (n_iter>kwargs['n_iter']):
@@ -70,4 +70,4 @@ def run(data, psf, psf_model, **kwargs):
         print(' - PSF COST: {}'.format(cost))
     plotCost(np.array(costs), output=kwargs['output'], psf_only=True)
     
-    return data, None, upd_psf
+    return galprimal, None, upd_psf

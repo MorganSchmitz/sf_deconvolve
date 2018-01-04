@@ -174,7 +174,7 @@ def run_script(log):
 
     ###########################################################################
     if opts.opt_type == 'psf_only':
-        results = update_psf.run(data_noisy, psf_data, psf_model, **vars(opts))
+        results = update_psf.run(data_noisy, primal, psf_data, psf_model, **vars(opts))
     else:
         # Perform deconvolution.
         results = deconvolve.run(data_noisy, psf_data, **vars(opts))
