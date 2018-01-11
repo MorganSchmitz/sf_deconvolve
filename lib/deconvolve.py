@@ -324,7 +324,7 @@ def set_primal_dual(data, **kwargs):
 
     # Set the initial values of the primal variable if not provided
     if isinstance(kwargs['primal'], type(None)):
-        kwargs['primal'] = np.copy(data)
+        kwargs['primal'] = np.ones(data_shape)#np.copy(data)
 
     # Set the initial values of the dual variable
     if kwargs['mode'] == 'all':
