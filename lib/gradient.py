@@ -170,7 +170,7 @@ class GradUnknownPSF(GradPSF):
 
         self.grad_type = 'psf_unknown'
         self._prox = prox
-        self._beta_reg = beta_reg
+        self._beta_reg_init = beta_reg
         self._beta_sig = beta_sig
         self._beta_decfac = beta_decfac
         self._lambda_reg = lambda_reg
@@ -205,6 +205,7 @@ class GradUnknownPSF(GradPSF):
         This method implements the update method for beta_reg
 
         """
+        self._beta_reg = self._beta_reg_init
         done = False
         count = 0
         cost_init = np.sum(self.psf_cost(self._psf, x))
