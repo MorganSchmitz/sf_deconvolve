@@ -44,7 +44,8 @@ def run(data, galprimal, psf, psf_model, **kwargs):
                                            beta_reg=kwargs['beta_psf'],
                                            beta_sig=kwargs['beta_sig'],
                                            lambda_reg=kwargs['lambda_psf'],
-                                           decrease_factor=kwargs['decfac_psf'])
+                                           decrease_factor=kwargs['decfac_psf'],
+                                           psf_only=True)
     costs = [kwargs['grad_op'].psf_cost(psf, galprimal)]
     cost = np.sum(costs)
     costs = [costs[0] + (cost,)]
